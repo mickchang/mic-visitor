@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MIC 訪客管理系統 APP</title>
+    <style>
+        :root { --primary: #2c3e50; --secondary: #3498db; --bg: #f4f7f6; }
+        body { 
+            font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; margin: 0; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            height: 100vh; width: 100vw; overflow: hidden;
+        }
+        
+        .header-mic { color: red; font-weight: bold; font-size: 48px; font-family: Arial, sans-serif; line-height: 1; margin-bottom: 10px;}
+        .header-sub { color: #c0392b; font-weight: bold; font-size: 20px; margin-bottom: 40px; }
+
+        .container { 
+            background: white; width: 85%; max-width: 400px; padding: 40px; 
+            border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            text-align: center; display: flex; flex-direction: column; gap: 20px;
+        }
+
+        button { 
+            padding: 20px; font-size: 20px; font-weight: bold; cursor: pointer; 
+            border: none; border-radius: 15px; transition: 0.2s; width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        
+        .btn-visitor { background: #3498db; color: white; box-shadow: 0 4px 10px rgba(52,152,219,0.3); }
+        .btn-visitor:active { background: #2980b9; transform: scale(0.98); }
+
+        .btn-admin { background: #2c3e50; color: white; box-shadow: 0 4px 10px rgba(44,62,80,0.3); }
+        .btn-admin:active { background: #1a252f; transform: scale(0.98); }
+
+        .footer { margin-top: 30px; font-size: 12px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <div class="header-mic">MIC</div>
+    <div class="header-sub">帆宣系統科技</div>
+
+    <div class="container">
+        <button class="btn-visitor" onclick="location.href='visitor.html'">
+            📝 訪客登記
+        </button>
+        
+        <button class="btn-admin" onclick="location.href='tablet.html'">
+            ⚙️ 櫃台管理看板
+        </button>
+    </div>
+
+    <div class="footer">系統版本 v1.0 | 內部專用</div>
+
+</body>
+</html>
