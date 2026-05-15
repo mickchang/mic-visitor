@@ -101,7 +101,7 @@
         <span class="status-dot" id="statusDot"></span>
         <span id="connStatus" style="font-weight: bold; color: #7f8c8d;">系統準備就緒</span>
         <span style="margin-left: 20px; font-weight: bold; color: #34495e;">據點設定：</span>
-        <input type="text" id="admin_loc" value="新竹 6F">
+        <input type="text" id="admin_loc" value="頭份">
         <button class="btn-save" onclick="saveLocation()">儲存據點</button>
         <button class="btn-start" onclick="startSystem()">▶ 啟動接收與語音</button>
     </div>
@@ -129,7 +129,17 @@
         <div class="admin-panel">
             <div class="admin-section">
                 <h3>📥 匯出 Excel</h3>
-                <button onclick="exportToExcel()" style="background:#27ae60; color:white; width:100%; margin-top:10px;">產生並下載試算表</button>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px; color: #666;">開始日期</label>
+                        <input type="date" id="exportStart" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px; color: #666;">結束日期</label>
+                        <input type="date" id="exportEnd" style="width: 100%; box-sizing: border-box;">
+                    </div>
+                </div>
+                <button onclick="exportToExcel()" style="background:#27ae60; color:white; width:100%;">匯出指定區間資料</button>
             </div>
             <div class="admin-section">
                 <h3>🗑️ 刪除紀錄</h3>
@@ -151,20 +161,19 @@
 
     window.onload = function() {
         checkLoginStatus();
-        const savedLoc = localStorage.getItem('mic_location') || '新竹 6F';
+        const savedLoc = localStorage.getItem('mic_location') || '頭份';
         document.getElementById('admin_loc').value = savedLoc;
         document.getElementById('displayLocation').innerText = "- " + savedLoc + " -";
         renderTable();
     };
 
-    // ================= 密碼防護邏輯 =================
     function checkLoginStatus() {
         const savedPw = localStorage.getItem('mic_admin_pw');
         const overlay = document.getElementById('loginOverlay');
         const title = document.getElementById('loginTitle');
         const hint = document.getElementById('loginHint');
         
-        overlay.style.display = 'flex'; // 強制開啟遮罩
+        overlay.style.display = 'flex';
         document.getElementById('adminPw').focus();
 
         if (!savedPw) {
@@ -183,12 +192,10 @@
         if (!inputPw) { alert("請輸入密碼！"); return; }
 
         if (!savedPw) {
-            // 首次設定
             localStorage.setItem('mic_admin_pw', inputPw);
             alert("✅ 密碼設定成功！請牢記此密碼。");
             document.getElementById('loginOverlay').style.display = 'none';
         } else {
-            // 驗證密碼
             if (inputPw === savedPw) {
                 document.getElementById('loginOverlay').style.display = 'none';
             } else {
@@ -205,7 +212,6 @@
         alert("✅ 密碼已成功變更！");
         document.getElementById('newPwInput').value = "";
     }
-    // ================================================
 
     function saveLocation() {
         const loc = document.getElementById('admin_loc').value.trim();
@@ -273,10 +279,39 @@
     function exportToExcel() {
         let records = JSON.parse(localStorage.getItem('mic_visitor_logs') || '[]');
         if(records.length === 0) { alert("沒有資料可匯出！"); return; }
-        const ws = XLSX.utils.json_to_sheet(records);
+
+        const startDate = document.getElementById('exportStart').value;
+        const endDate = document.getElementById('exportEnd').value;
+        
+        // 依照日期篩選邏輯
+        let filteredRecords = records;
+        if (startDate || endDate) {
+            filteredRecords = records.filter(r => {
+                const recordDate = r.time.split(' ')[0]; // 取出 "YYYY-MM-DD" 的部分
+                let isValid = true;
+                if (startDate && recordDate < startDate) isValid = false;
+                if (endDate && recordDate > endDate) isValid = false;
+                return isValid;
+            });
+        }
+
+        if(filteredRecords.length === 0) { 
+            alert("⚠️ 該日期區間內沒有訪客資料！"); 
+            return; 
+        }
+
+        const ws = XLSX.utils.json_to_sheet(filteredRecords);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "訪客紀錄");
-        XLSX.writeFile(wb, "MIC_訪客紀錄匯出.xlsx");
+        
+        // 匯出檔名加上日期區間標示
+        let fileName = "MIC_訪客紀錄匯出";
+        if(startDate && endDate) fileName += `_${startDate}至${endDate}`;
+        else if(startDate) fileName += `_${startDate}起`;
+        else if(endDate) fileName += `_至${endDate}止`;
+        fileName += ".xlsx";
+
+        XLSX.writeFile(wb, fileName);
     }
 
     function clearAllRecords() {
