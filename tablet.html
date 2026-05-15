@@ -58,9 +58,37 @@
         .modal-box { background:white; padding:30px; border-radius:15px; width:90%; max-width:800px; max-height: 80vh; overflow-y: auto; }
         .admin-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
         .admin-section { border: 1px solid #eee; padding: 15px; border-radius: 10px; }
+
+        /* 全螢幕登入防護罩 */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #f0f2f5; z-index: 9999; display: flex;
+            justify-content: center; align-items: center; flex-direction: column;
+        }
+        .login-box {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 85%; max-width: 400px;
+        }
+        .login-box input {
+            width: 90%; padding: 15px; font-size: 18px; border: 1px solid #ddd;
+            border-radius: 10px; margin-bottom: 20px; text-align: center;
+        }
+        .login-box button {
+            background: #3498db; color: white; padding: 15px; width: 100%;
+            border: none; border-radius: 10px; font-size: 18px; cursor: pointer;
+        }
     </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+    <div class="login-box">
+        <h2 id="loginTitle" style="color:#2c3e50; margin-top:0;">🔒 系統登入</h2>
+        <p id="loginHint" style="color:#7f8c8d; font-size:14px;">系統載入中...</p>
+        <input type="password" id="adminPw" placeholder="請輸入密碼" onkeypress="if(event.key === 'Enter') verifyLogin()">
+        <button onclick="verifyLogin()">確認 / Enter</button>
+    </div>
+</div>
 
 <div class="header-area">
     <div class="header-mic">MIC</div>
@@ -89,7 +117,7 @@
     </table>
 </div>
 
-<div class="admin-trigger" onclick="openAdminModal()">⚙️ 管理者模式 / Admin System</div>
+<div class="admin-trigger" onclick="openAdminModal()">⚙️ 高級管理後台</div>
 
 <div id="adminModal" class="modal">
     <div class="modal-box">
@@ -101,14 +129,17 @@
         <div class="admin-panel">
             <div class="admin-section">
                 <h3>📥 匯出 Excel</h3>
-                <label>開始日期：</label><br><input type="date" id="exp_start" style="width:90%;"><br>
-                <label>結束日期：</label><br><input type="date" id="exp_end" style="width:90%;"><br><br>
-                <button onclick="exportToExcel()" style="background:#27ae60; color:white; width:100%;">產生試算表</button>
+                <button onclick="exportToExcel()" style="background:#27ae60; color:white; width:100%; margin-top:10px;">產生並下載試算表</button>
             </div>
             <div class="admin-section">
                 <h3>🗑️ 刪除紀錄</h3>
                 <p style="color:red; font-size:12px;">※ 刪除後無法復原</p>
                 <button onclick="clearAllRecords()" style="background:#e74c3c; color:white; width:100%;">清空本地所有紀錄</button>
+            </div>
+            <div class="admin-section" style="grid-column: span 2;">
+                <h3>🔑 變更管理員密碼</h3>
+                <input type="password" id="newPwInput" placeholder="請輸入新密碼" style="width: 60%;">
+                <button onclick="changePassword()" style="background:#f39c12; color:white;">確認變更</button>
             </div>
         </div>
     </div>
@@ -119,11 +150,62 @@
     let pollingInterval;
 
     window.onload = function() {
+        checkLoginStatus();
         const savedLoc = localStorage.getItem('mic_location') || '新竹 6F';
         document.getElementById('admin_loc').value = savedLoc;
         document.getElementById('displayLocation').innerText = "- " + savedLoc + " -";
         renderTable();
     };
+
+    // ================= 密碼防護邏輯 =================
+    function checkLoginStatus() {
+        const savedPw = localStorage.getItem('mic_admin_pw');
+        const overlay = document.getElementById('loginOverlay');
+        const title = document.getElementById('loginTitle');
+        const hint = document.getElementById('loginHint');
+        
+        overlay.style.display = 'flex'; // 強制開啟遮罩
+        document.getElementById('adminPw').focus();
+
+        if (!savedPw) {
+            title.innerText = "🆕 首次啟用設定";
+            hint.innerText = "請為您的管理看板設定一組新密碼";
+        } else {
+            title.innerText = "🔒 系統登入";
+            hint.innerText = "請輸入管理員密碼";
+        }
+    }
+
+    function verifyLogin() {
+        const inputPw = document.getElementById('adminPw').value;
+        const savedPw = localStorage.getItem('mic_admin_pw');
+
+        if (!inputPw) { alert("請輸入密碼！"); return; }
+
+        if (!savedPw) {
+            // 首次設定
+            localStorage.setItem('mic_admin_pw', inputPw);
+            alert("✅ 密碼設定成功！請牢記此密碼。");
+            document.getElementById('loginOverlay').style.display = 'none';
+        } else {
+            // 驗證密碼
+            if (inputPw === savedPw) {
+                document.getElementById('loginOverlay').style.display = 'none';
+            } else {
+                alert("❌ 密碼錯誤，請重新輸入！");
+                document.getElementById('adminPw').value = "";
+            }
+        }
+    }
+
+    function changePassword() {
+        const newPw = document.getElementById('newPwInput').value;
+        if (!newPw) { alert("新密碼不能為空！"); return; }
+        localStorage.setItem('mic_admin_pw', newPw);
+        alert("✅ 密碼已成功變更！");
+        document.getElementById('newPwInput').value = "";
+    }
+    // ================================================
 
     function saveLocation() {
         const loc = document.getElementById('admin_loc').value.trim();
@@ -132,7 +214,6 @@
         alert("✅ 據點名稱已更新！");
     }
 
-    // 後台控制功能
     function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
     function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
@@ -142,7 +223,7 @@
         document.getElementById('statusDot').classList.add('status-online');
         if(pollingInterval) clearInterval(pollingInterval);
         pollingInterval = setInterval(fetchCloudData, 5000);
-        const msg = new SpeechSynthesisUtterance("訪客管理系統啟動成功");
+        const msg = new SpeechSynthesisUtterance("系統啟動成功");
         msg.lang = 'zh-TW';
         window.speechSynthesis.speak(msg);
     }
@@ -191,6 +272,7 @@
 
     function exportToExcel() {
         let records = JSON.parse(localStorage.getItem('mic_visitor_logs') || '[]');
+        if(records.length === 0) { alert("沒有資料可匯出！"); return; }
         const ws = XLSX.utils.json_to_sheet(records);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "訪客紀錄");
@@ -198,10 +280,10 @@
     }
 
     function clearAllRecords() {
-        if(confirm("確定要刪除這台電腦上所有的歷史紀錄嗎？（雲端不會受影響）")) {
+        if(confirm("⚠️ 警告：確定要刪除這台設備上所有的歷史紀錄嗎？")) {
             localStorage.removeItem('mic_visitor_logs');
             renderTable();
-            alert("已清空");
+            alert("✅ 已清空");
         }
     }
 </script>
