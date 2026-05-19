@@ -11,22 +11,61 @@
         :root { --primary: #2c3e50; --secondary: #3498db; --bg: #f4f7f6; }
         body { 
             font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; margin: 0; 
-            display: flex; justify-content: center; align-items: center; 
+            display: flex; flex-direction: column; align-items: center; 
             height: 100vh; width: 100vw; position: relative; overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* --- 頂部標題區整體排版 (進化版：防重疊) --- */
+        .header-area {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between; /* 電腦版兩端對齊 */
+            align-items: start;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
         }
         
-        /* 左上角標題與動態據點 */
-        .header-title { position: absolute; top: 20px; left: 20px; text-align: left; }
+        /* 左上角標題 */
+        .header-title { text-align: left; flex: 1; margin-right: 20px; }
         .header-mic { color: red; font-weight: bold; font-size: 36px; font-family: Arial, sans-serif; line-height: 1; }
         .header-sub { color: #c0392b; font-weight: bold; font-size: 18px; margin-top: 5px; }
         .header-location { color: #7f8c8d; font-size: 14px; margin-top: 3px; font-weight: bold; }
 
-        /* 右上方 QR Code */
+        /* 右上方 QR Code 容器 */
         #qrcode-container { 
-            position: absolute; top: 20px; right: 20px; text-align: center; 
+            text-align: center; 
             background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+            display: block; /* 電腦版預設顯示 */
         }
 
+        /* --- 手機版專屬樣式設定 (媒體查詢) --- */
+        /* 當螢幕寬度小於或等於 768px 時生效 (通常是手機) */
+        @media (max-width: 768px) {
+            body { padding-top: 130px; } /* 為置中的標題騰出空間 */
+            
+            .header-area {
+                flex-direction: column; /* 垂直排列 */
+                align-items: center;    /* 水平居中 */
+                text-align: center;
+                justify-content: center;
+            }
+
+            .header-title {
+                margin-right: 0;
+                text-align: center;
+            }
+
+            #qrcode-container { 
+                display: none !important; /* 強制在手機端隱藏 QR Code */
+            }
+        }
+
+        /* --- 其他原始樣式不變 --- */
         /* 右下角管理者入口 */
         .admin-trigger { 
             position: absolute; bottom: 20px; right: 20px; cursor: pointer; 
@@ -38,6 +77,12 @@
             background: white; width: 85%; max-width: 600px; padding: 50px 40px; 
             border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
             text-align: center;
+            margin-top: 0px; /* 預設在中間 */
+        }
+
+        /* 平板以上解析度，調整 container 位置防止離頭部太近 */
+        @media (min-width: 769px) {
+            .container { margin-top: 100px; }
         }
 
         .step { display: none; }
@@ -66,15 +111,17 @@
 </head>
 <body>
 
-<div class="header-title">
-    <div class="header-mic">MIC</div>
-    <div class="header-sub">帆宣系統科技訪客登記表</div>
-    <div class="header-location" id="displayLocation">- 載入中 -</div>
-</div>
+<div class="header-area">
+    <div class="header-title">
+        <div class="header-mic">MIC</div>
+        <div class="header-sub">帆宣系統科技訪客登記表</div>
+        <div class="header-location" id="displayLocation">- 載入中 -</div>
+    </div>
 
-<div id="qrcode-container">
-    <div id="qrcode"></div>
-    <div style="font-size: 12px; color: #666; margin-top: 5px;">手機掃碼登記</div>
+    <div id="qrcode-container">
+        <div id="qrcode"></div>
+        <div style="font-size: 12px; color: #666; margin-top: 5px;">手機掃碼登記</div>
+    </div>
 </div>
 
 <div class="admin-trigger" onclick="location.href='tablet.html'">
@@ -117,10 +164,11 @@
             <button class="btn-next" onclick="submitData()">確認送出 / Finish</button>
         </div>
         <div id="loadingMsg" class="loading">正在儲存至系統中...</div>
-    </div>
+        </div>
 </div>
 
 <script>
+    // JS 部分邏輯維持不變，已確認預設值為 '新竹 6F-3'
     const GAS_URL = "https://script.google.com/macros/s/AKfycby6UO89plqJzmURWl26XCqoc4p9q1jRUp7TWKu1RM34WDluu2oxMdEffvXSAUHOFTmF/exec";
 
     window.onload = function() {
@@ -132,7 +180,7 @@
         // 2. 更新畫面左上角的顯示地點
         document.getElementById('displayLocation').innerText = "- " + currentLoc + " -";
         
-        // 3. 產生右上方 QR Code (會自動包含當下的網址與地點參數)
+        // 3. 產生右上方 QR Code (雖然手機版隱藏，但 JS 還是會產生以供電腦版使用)
         new QRCode(document.getElementById("qrcode"), {
             text: window.location.href,
             width: 100,
@@ -152,7 +200,6 @@
 
         document.getElementById('loadingMsg').style.display = 'block';
         
-        // 送出資料時，採用完全一致的地點判定邏輯
         const urlParams = new URLSearchParams(window.location.search);
         const urlLoc = urlParams.get('loc');
         const loc = urlLoc || localStorage.getItem('mic_location') || '新竹 6F-3'; 
@@ -186,4 +233,3 @@
 </script>
 </body>
 </html>
-
