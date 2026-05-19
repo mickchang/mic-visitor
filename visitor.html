@@ -15,16 +15,19 @@
             height: 100vh; width: 100vw; position: relative; overflow: hidden;
         }
         
+        /* 左上角標題與動態據點 */
         .header-title { position: absolute; top: 20px; left: 20px; text-align: left; }
         .header-mic { color: red; font-weight: bold; font-size: 36px; font-family: Arial, sans-serif; line-height: 1; }
         .header-sub { color: #c0392b; font-weight: bold; font-size: 18px; margin-top: 5px; }
         .header-location { color: #7f8c8d; font-size: 14px; margin-top: 3px; font-weight: bold; }
 
+        /* 右上方 QR Code */
         #qrcode-container { 
             position: absolute; top: 20px; right: 20px; text-align: center; 
             background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
         }
 
+        /* 右下角管理者入口 */
         .admin-trigger { 
             position: absolute; bottom: 20px; right: 20px; cursor: pointer; 
             color: #999; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 5px;
@@ -59,15 +62,6 @@
         button:active { transform: scale(0.98); }
 
         .loading { display: none; color: #e67e22; font-weight: bold; margin-top: 15px; }
-
-        /* 響應式設計：當螢幕寬度小於 768px (手機) 時，自動隱藏 QR Code 且優化排版 */
-        @media (max-width: 768px) {
-            #qrcode-container { display: none !important; }
-            .header-title { position: static; text-align: center; margin-bottom: 20px; margin-top: 20px; }
-            .container { padding: 30px 20px; width: 90%; margin-bottom: 60px; max-height: 80vh; overflow-y: auto;}
-            .admin-trigger { position: static; justify-content: center; margin-top: 15px; }
-            body { display: block; overflow-y: auto; }
-        }
     </style>
 </head>
 <body>
@@ -81,6 +75,10 @@
 <div id="qrcode-container">
     <div id="qrcode"></div>
     <div style="font-size: 12px; color: #666; margin-top: 5px;">手機掃碼登記</div>
+</div>
+
+<div class="admin-trigger" onclick="location.href='tablet.html'">
+    ⚙️ 管理者 / Admin
 </div>
 
 <div class="container">
@@ -122,17 +120,19 @@
     </div>
 </div>
 
-<div class="admin-trigger" onclick="location.href='tablet.html'">
-    ⚙️ 管理者 / Admin
-</div>
-
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycby6UO89plqJzmURWl26XCqoc4p9q1jRUp7TWKu1RM34WDluu2oxMdEffvXSAUHOFTmF/exec";
 
     window.onload = function() {
-        const savedLoc = localStorage.getItem('mic_location') || '新竹 6F';
-        document.getElementById('displayLocation').innerText = "- " + savedLoc + " -";
+        // 1. 動態判定地點：網址參數優先 > 系統暫存 > 預設值 (新竹 6F-3)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlLoc = urlParams.get('loc');
+        const currentLoc = urlLoc || localStorage.getItem('mic_location') || '新竹 6F-3';
         
+        // 2. 更新畫面左上角的顯示地點
+        document.getElementById('displayLocation').innerText = "- " + currentLoc + " -";
+        
+        // 3. 產生右上方 QR Code (會自動包含當下的網址與地點參數)
         new QRCode(document.getElementById("qrcode"), {
             text: window.location.href,
             width: 100,
@@ -151,8 +151,11 @@
         if(!name || !host) { alert("請填寫姓名與受訪人！"); return; }
 
         document.getElementById('loadingMsg').style.display = 'block';
+        
+        // 送出資料時，採用完全一致的地點判定邏輯
         const urlParams = new URLSearchParams(window.location.search);
-        const loc = urlParams.get('loc') || localStorage.getItem('mic_location') || 'Toufen'; 
+        const urlLoc = urlParams.get('loc');
+        const loc = urlLoc || localStorage.getItem('mic_location') || '新竹 6F-3'; 
 
         const now = new Date();
         const record = {
