@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MIC 帆宣系統科技訪客登記表</title>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <style>
         :root { --primary: #2c3e50; --secondary: #3498db; --bg: #f4f7f6; }
         body { 
@@ -79,7 +81,7 @@
     </div>
 
     <div id="qrcode-container">
-        <img id="qrcode-img" src="" alt="QR Code" width="100" height="100">
+        <div id="qrcode"></div>
         <div style="font-size: 12px; color: #666; margin-top: 5px;">手機掃碼登記</div>
     </div>
 </div>
@@ -132,19 +134,21 @@
 
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        let urlLoc = urlParams.get('loc');
-        
-        // 解析可能被編碼的中文，避免亂碼
-        try { if(urlLoc) urlLoc = decodeURIComponent(urlLoc); } catch(e) {}
+        // 瀏覽器會自動解碼，直接取用即可，不畫蛇添足
+        const urlLoc = urlParams.get('loc'); 
         
         const currentLoc = urlLoc || localStorage.getItem('mic_location') || '新竹 6F-3';
         document.getElementById('displayLocation').innerText = "- " + currentLoc + " -";
         
-        // 組合專屬網址，並交給 Google 產生超穩定 QR Code
+        // 為了讓 QR Code 不亂碼，我們把中文包裝成純英文代碼的網址
         const baseUrl = window.location.origin + window.location.pathname;
         const qrUrl = baseUrl + "?loc=" + encodeURIComponent(currentLoc);
         
-        document.getElementById("qrcode-img").src = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" + encodeURIComponent(qrUrl);
+        new QRCode(document.getElementById("qrcode"), {
+            text: qrUrl,
+            width: 100,
+            height: 100
+        });
     };
 
     function nextStep(s) {
@@ -160,9 +164,7 @@
         document.getElementById('loadingMsg').style.display = 'block';
         
         const urlParams = new URLSearchParams(window.location.search);
-        let loc = urlParams.get('loc');
-        try { if(loc) loc = decodeURIComponent(loc); } catch(e) {}
-        loc = loc || localStorage.getItem('mic_location') || '新竹 6F-3'; 
+        const loc = urlParams.get('loc') || localStorage.getItem('mic_location') || '新竹 6F-3'; 
 
         const now = new Date();
         const record = {
