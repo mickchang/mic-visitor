@@ -5,26 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MIC 帆宣系統科技訪客登記表</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
     <style>
         :root { --primary: #2c3e50; --secondary: #3498db; --bg: #f4f7f6; }
         body { 
             font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; margin: 0; 
             display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh; width: 100vw; position: relative; overflow-x: hidden;
-            box-sizing: border-box;
+            min-height: 100vh; width: 100vw; position: relative;
+            box-sizing: border-box; overflow-x: hidden;
         }
 
         .header-area {
-            width: 100%;
-            padding: 20px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: space-between; 
-            align-items: start;
-            position: relative;
-            z-index: 10;
+            width: 100%; padding: 20px; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: start;
+            position: relative; z-index: 10;
         }
         
         .header-title { text-align: left; flex: 1; margin-right: 20px; }
@@ -33,42 +26,20 @@
         .header-location { color: #7f8c8d; font-size: 14px; margin-top: 3px; font-weight: bold; }
 
         #qrcode-container { 
-            text-align: center; 
-            background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-            display: block; 
+            text-align: center; background: white; padding: 10px; 
+            border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: block; 
         }
 
         @media (max-width: 768px) {
-            .header-area {
-                flex-direction: column; 
-                align-items: center;    
-                text-align: center;
-                justify-content: center;
-                padding-bottom: 0;
-            }
-
-            .header-title {
-                margin-right: 0;
-                text-align: center;
-            }
-
-            #qrcode-container { 
-                display: none !important; 
-            }
-        }
-
-        .admin-trigger { 
-            margin: 30px 0; cursor: pointer; 
-            color: #999; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 5px;
-            z-index: 100;
+            .header-area { flex-direction: column; align-items: center; text-align: center; padding-bottom: 0; }
+            .header-title { margin-right: 0; text-align: center; }
+            #qrcode-container { display: none !important; }
         }
 
         .container { 
             background: white; width: 85%; max-width: 600px; padding: 50px 40px; 
             border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 20px;
+            text-align: center; margin-top: 20px; margin-bottom: 20px;
         }
 
         .step { display: none; }
@@ -76,7 +47,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         h2 { color: #34495e; font-size: 26px; margin-bottom: 30px; font-weight: bold; }
-
         .radio-group { display: inline-block; text-align: left; margin-bottom: 40px; }
         .radio-item { font-size: 20px; margin: 20px 0; display: flex; align-items: center; cursor: pointer; color: #444; }
         .radio-item input { transform: scale(1.6); margin-right: 15px; cursor: pointer; }
@@ -91,8 +61,12 @@
         .btn-next { background: #3498db; color: white; }
         .btn-back { background: #95a5a6; color: white; }
         button:active { transform: scale(0.98); }
-
         .loading { display: none; color: #e67e22; font-weight: bold; margin-top: 15px; }
+        
+        .admin-trigger { 
+            margin: 20px 0 40px 0; cursor: pointer; color: #999; font-size: 14px; 
+            font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 100;
+        }
     </style>
 </head>
 <body>
@@ -105,7 +79,7 @@
     </div>
 
     <div id="qrcode-container">
-        <div id="qrcode"></div>
+        <img id="qrcode-img" src="" alt="QR Code" width="100" height="100">
         <div style="font-size: 12px; color: #666; margin-top: 5px;">手機掃碼登記</div>
     </div>
 </div>
@@ -158,22 +132,19 @@
 
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
-        const urlLoc = urlParams.get('loc');
+        let urlLoc = urlParams.get('loc');
         
-        // 抓取管理後台存下來的地點，找不到就預設新竹
+        // 解析可能被編碼的中文，避免亂碼
+        try { if(urlLoc) urlLoc = decodeURIComponent(urlLoc); } catch(e) {}
+        
         const currentLoc = urlLoc || localStorage.getItem('mic_location') || '新竹 6F-3';
-        
         document.getElementById('displayLocation').innerText = "- " + currentLoc + " -";
         
-        // QR Code 自動綁定當前地點，防亂碼編碼
+        // 組合專屬網址，並交給 Google 產生超穩定 QR Code
         const baseUrl = window.location.origin + window.location.pathname;
         const qrUrl = baseUrl + "?loc=" + encodeURIComponent(currentLoc);
         
-        new QRCode(document.getElementById("qrcode"), {
-            text: qrUrl,
-            width: 100,
-            height: 100
-        });
+        document.getElementById("qrcode-img").src = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" + encodeURIComponent(qrUrl);
     };
 
     function nextStep(s) {
@@ -189,8 +160,9 @@
         document.getElementById('loadingMsg').style.display = 'block';
         
         const urlParams = new URLSearchParams(window.location.search);
-        const urlLoc = urlParams.get('loc');
-        const loc = urlLoc || localStorage.getItem('mic_location') || '新竹 6F-3'; 
+        let loc = urlParams.get('loc');
+        try { if(loc) loc = decodeURIComponent(loc); } catch(e) {}
+        loc = loc || localStorage.getItem('mic_location') || '新竹 6F-3'; 
 
         const now = new Date();
         const record = {
