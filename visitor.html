@@ -16,13 +16,13 @@
             box-sizing: border-box;
         }
 
-        /* --- 頂部標題區整體排版 (進化版：防重疊) --- */
+        /* 頂部標題區整體排版 (防重疊) */
         .header-area {
             width: 100%;
             padding: 20px;
             box-sizing: border-box;
             display: flex;
-            justify-content: space-between; /* 電腦版兩端對齊 */
+            justify-content: space-between; 
             align-items: start;
             position: absolute;
             top: 0;
@@ -36,21 +36,20 @@
         .header-sub { color: #c0392b; font-weight: bold; font-size: 18px; margin-top: 5px; }
         .header-location { color: #7f8c8d; font-size: 14px; margin-top: 3px; font-weight: bold; }
 
-        /* 右上方 QR Code 容器 */
+        /* 右上方 QR Code 容器 (電腦版會顯示) */
         #qrcode-container { 
             text-align: center; 
             background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-            display: block; /* 電腦版預設顯示 */
+            display: block; 
         }
 
-        /* --- 手機版專屬樣式設定 (媒體查詢) --- */
-        /* 當螢幕寬度小於或等於 768px 時生效 (通常是手機) */
+        /* 手機版專屬樣式設定 (螢幕小於 768px 時隱藏 QR Code 並置中) */
         @media (max-width: 768px) {
-            body { padding-top: 130px; } /* 為置中的標題騰出空間 */
+            body { padding-top: 130px; } 
             
             .header-area {
-                flex-direction: column; /* 垂直排列 */
-                align-items: center;    /* 水平居中 */
+                flex-direction: column; 
+                align-items: center;    
                 text-align: center;
                 justify-content: center;
             }
@@ -61,11 +60,10 @@
             }
 
             #qrcode-container { 
-                display: none !important; /* 強制在手機端隱藏 QR Code */
+                display: none !important; 
             }
         }
 
-        /* --- 其他原始樣式不變 --- */
         /* 右下角管理者入口 */
         .admin-trigger { 
             position: absolute; bottom: 20px; right: 20px; cursor: pointer; 
@@ -77,10 +75,10 @@
             background: white; width: 85%; max-width: 600px; padding: 50px 40px; 
             border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
             text-align: center;
-            margin-top: 0px; /* 預設在中間 */
+            margin-top: 0px; 
         }
 
-        /* 平板以上解析度，調整 container 位置防止離頭部太近 */
+        /* 平板以上解析度，調整 container 位置 */
         @media (min-width: 769px) {
             .container { margin-top: 100px; }
         }
@@ -164,11 +162,10 @@
             <button class="btn-next" onclick="submitData()">確認送出 / Finish</button>
         </div>
         <div id="loadingMsg" class="loading">正在儲存至系統中...</div>
-        </div>
+    </div>
 </div>
 
 <script>
-    // JS 部分邏輯維持不變，已確認預設值為 '新竹 6F-3'
     const GAS_URL = "https://script.google.com/macros/s/AKfycby6UO89plqJzmURWl26XCqoc4p9q1jRUp7TWKu1RM34WDluu2oxMdEffvXSAUHOFTmF/exec";
 
     window.onload = function() {
@@ -180,9 +177,12 @@
         // 2. 更新畫面左上角的顯示地點
         document.getElementById('displayLocation').innerText = "- " + currentLoc + " -";
         
-        // 3. 產生右上方 QR Code (雖然手機版隱藏，但 JS 還是會產生以供電腦版使用)
+        // 3. 【關鍵修改】讓 QR Code 強制帶上目前決定的地點參數！
+        const baseUrl = window.location.origin + window.location.pathname;
+        const qrUrl = baseUrl + "?loc=" + currentLoc;
+        
         new QRCode(document.getElementById("qrcode"), {
-            text: window.location.href,
+            text: qrUrl,
             width: 100,
             height: 100
         });
