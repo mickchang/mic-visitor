@@ -12,11 +12,10 @@
         body { 
             font-family: "Microsoft JhengHei", sans-serif; background: #f0f2f5; margin: 0; 
             display: flex; flex-direction: column; align-items: center; 
-            height: 100vh; width: 100vw; position: relative; overflow: hidden;
+            min-height: 100vh; width: 100vw; position: relative; overflow-x: hidden;
             box-sizing: border-box;
         }
 
-        /* 頂部標題區整體排版 (防重疊) */
         .header-area {
             width: 100%;
             padding: 20px;
@@ -24,34 +23,28 @@
             display: flex;
             justify-content: space-between; 
             align-items: start;
-            position: absolute;
-            top: 0;
-            left: 0;
+            position: relative;
             z-index: 10;
         }
         
-        /* 左上角標題 */
         .header-title { text-align: left; flex: 1; margin-right: 20px; }
         .header-mic { color: red; font-weight: bold; font-size: 36px; font-family: Arial, sans-serif; line-height: 1; }
         .header-sub { color: #c0392b; font-weight: bold; font-size: 18px; margin-top: 5px; }
         .header-location { color: #7f8c8d; font-size: 14px; margin-top: 3px; font-weight: bold; }
 
-        /* 右上方 QR Code 容器 (電腦版會顯示) */
         #qrcode-container { 
             text-align: center; 
             background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
             display: block; 
         }
 
-        /* 手機版專屬樣式設定 (螢幕小於 768px 時隱藏 QR Code 並置中) */
         @media (max-width: 768px) {
-            body { padding-top: 130px; } 
-            
             .header-area {
                 flex-direction: column; 
                 align-items: center;    
                 text-align: center;
                 justify-content: center;
+                padding-bottom: 0;
             }
 
             .header-title {
@@ -64,9 +57,8 @@
             }
         }
 
-        /* 右下角管理者入口 */
         .admin-trigger { 
-            position: absolute; bottom: 20px; right: 20px; cursor: pointer; 
+            margin: 30px 0; cursor: pointer; 
             color: #999; font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 5px;
             z-index: 100;
         }
@@ -75,12 +67,8 @@
             background: white; width: 85%; max-width: 600px; padding: 50px 40px; 
             border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
             text-align: center;
-            margin-top: 0px; 
-        }
-
-        /* 平板以上解析度，調整 container 位置 */
-        @media (min-width: 769px) {
-            .container { margin-top: 100px; }
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         .step { display: none; }
@@ -122,10 +110,6 @@
     </div>
 </div>
 
-<div class="admin-trigger" onclick="location.href='tablet.html'">
-    ⚙️ 管理者 / Admin
-</div>
-
 <div class="container">
     <div id="step1" class="step active">
         <h2>來訪名稱 / Purpose</h2>
@@ -165,21 +149,25 @@
     </div>
 </div>
 
+<div class="admin-trigger" onclick="location.href='tablet.html'">
+    ⚙️ 管理者 / Admin
+</div>
+
 <script>
     const GAS_URL = "https://script.google.com/macros/s/AKfycby6UO89plqJzmURWl26XCqoc4p9q1jRUp7TWKu1RM34WDluu2oxMdEffvXSAUHOFTmF/exec";
 
     window.onload = function() {
-        // 1. 動態判定地點：網址參數優先 > 系統暫存 > 預設值 (新竹 6F-3)
         const urlParams = new URLSearchParams(window.location.search);
         const urlLoc = urlParams.get('loc');
+        
+        // 抓取管理後台存下來的地點，找不到就預設新竹
         const currentLoc = urlLoc || localStorage.getItem('mic_location') || '新竹 6F-3';
         
-        // 2. 更新畫面左上角的顯示地點
         document.getElementById('displayLocation').innerText = "- " + currentLoc + " -";
         
-        // 3. 【關鍵修改】讓 QR Code 強制帶上目前決定的地點參數！
+        // QR Code 自動綁定當前地點，防亂碼編碼
         const baseUrl = window.location.origin + window.location.pathname;
-        const qrUrl = baseUrl + "?loc=" + currentLoc;
+        const qrUrl = baseUrl + "?loc=" + encodeURIComponent(currentLoc);
         
         new QRCode(document.getElementById("qrcode"), {
             text: qrUrl,
