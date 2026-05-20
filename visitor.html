@@ -42,6 +42,8 @@
             .header-title { margin-right: 0; text-align: center; }
             #qrcode-container { display: none !important; }
             .form-grid { grid-template-columns: 1fr; gap: 15px; }
+            /* 【防護一】手機螢幕寬度下，強制隱藏管理者按鈕 */
+            .admin-trigger { display: none !important; }
         }
 
         .container { 
@@ -160,7 +162,7 @@
     </div>
 </div>
 
-<div class="admin-trigger" onclick="location.href='tablet.html'">
+<div class="admin-trigger" id="adminBtn" onclick="location.href='tablet.html'">
     ⚙️ 管理者 / Admin
 </div>
 
@@ -170,6 +172,12 @@
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const urlLoc = urlParams.get('loc'); 
+        
+        // 【防護二】如果網址帶有 loc 參數 (代表是掃描 QR Code 進來的)，徹底隱藏管理者按鈕
+        if (urlLoc) {
+            const adminBtn = document.getElementById('adminBtn');
+            if (adminBtn) adminBtn.style.display = 'none';
+        }
         
         const currentLoc = urlLoc || localStorage.getItem('mic_location') || '新竹 6F-3';
         document.getElementById('displayLocation').innerText = "- " + currentLoc + " -";
@@ -185,7 +193,6 @@
         document.getElementById('step' + s).classList.add('active');
     }
 
-    // 核心動態邏輯
     function goToStep2() {
         const purpose = document.querySelector('input[name="purpose"]:checked').value;
         
@@ -196,7 +203,6 @@
         const iPeople = document.getElementById('v_people');
         const btnSteps = document.querySelectorAll('.btn-step');
 
-        // 全部重置為顯示狀態
         fHost.style.display = 'block'; fHost.value = '';
         fComp.style.display = 'block'; fComp.value = '';
         fDept.style.display = 'block'; fDept.value = '';
@@ -213,14 +219,14 @@
             fName.placeholder = "面試者姓名 / Candidate / 面接者名 (必填)";
             fComp.style.display = 'none';
             fDept.style.display = 'none';
-            fHost.style.display = 'none'; fHost.value = '-'; // 隱藏受訪人，預設帶入 "-"
+            fHost.style.display = 'none'; fHost.value = '-'; 
             btnSteps.forEach(btn => btn.style.display = 'none');
         } 
         else if (purpose.includes("報到")) {
             fName.placeholder = "報到者姓名 / New Hire / 入社者名 (必填)";
             fComp.style.display = 'none';
             fDept.style.display = 'none';
-            fHost.style.display = 'none'; fHost.value = '-'; // 隱藏受訪人，預設帶入 "-"
+            fHost.style.display = 'none'; fHost.value = '-'; 
             btnSteps.forEach(btn => btn.style.display = 'none');
         } 
         else if (purpose.includes("施工")) {
@@ -230,7 +236,6 @@
             fDept.style.display = 'none';
         } 
         else {
-            // 其他
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
             fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
             fComp.placeholder = "公司名稱 / Company / 会社名";
@@ -252,7 +257,6 @@
         const host = document.getElementById('v_host').value.trim();
         const isHostVisible = document.getElementById('v_host').style.display !== 'none';
         
-        // 只有在受訪人欄位有顯示時，才檢查是否必填
         if(!name || (isHostVisible && !host)) { 
             alert("請填寫必填欄位！ / Please fill in required fields."); 
             return; 
