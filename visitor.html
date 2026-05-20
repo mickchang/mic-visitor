@@ -32,33 +32,20 @@
             border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: block; 
         }
 
-        /* 表單合併後的雙排網格設計 */
+        /* 雙排網格設計 */
         .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 電腦/平板雙排 */
-            gap: 20px;
-            margin-bottom: 30px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;
         }
         
-        .form-grid input[type="text"], .form-grid input[type="number"] {
-            width: 100%; /* 讓輸入框填滿網格 */
-            margin-bottom: 0; 
-        }
-
         @media (max-width: 768px) {
             .header-area { flex-direction: column; align-items: center; text-align: center; padding-bottom: 0; }
             .header-title { margin-right: 0; text-align: center; }
             #qrcode-container { display: none !important; }
-            
-            /* 手機版自動改為單排 */
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
+            .form-grid { grid-template-columns: 1fr; gap: 15px; } /* 手機單排 */
         }
 
         .container { 
-            background: white; width: 85%; max-width: 700px; padding: 50px 40px; 
+            background: white; width: 85%; max-width: 700px; padding: 40px; 
             border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
             text-align: center; margin-top: 20px; margin-bottom: 20px;
         }
@@ -67,21 +54,45 @@
         .step.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        h2 { color: #34495e; font-size: 26px; margin-bottom: 30px; font-weight: bold; }
-        .radio-group { display: inline-block; text-align: left; margin-bottom: 40px; }
-        .radio-item { font-size: 20px; margin: 20px 0; display: flex; align-items: center; cursor: pointer; color: #444; }
-        .radio-item input { transform: scale(1.6); margin-right: 15px; cursor: pointer; }
+        h2 { color: #34495e; font-size: 24px; margin-bottom: 30px; font-weight: bold; }
+        
+        .radio-group { display: inline-block; text-align: left; margin-bottom: 30px; }
+        .radio-item { font-size: 18px; margin: 15px 0; display: flex; align-items: center; cursor: pointer; color: #444; }
+        .radio-item input { transform: scale(1.5); margin-right: 15px; cursor: pointer; }
 
         input[type="text"], input[type="number"] { 
-            width: 95%; padding: 15px; font-size: 18px; border: 1px solid #ddd; 
-            border-radius: 10px; margin-bottom: 20px; background: #fff; box-sizing: border-box;
+            width: 100%; padding: 15px; font-size: 15px; border: 1px solid #ddd; 
+            border-radius: 10px; background: #fff; box-sizing: border-box; margin: 0;
+            outline: none; transition: border 0.3s;
+        }
+        input[type="text"]:focus { border-color: #3498db; }
+
+        /* 人數增減按鈕專用樣式 */
+        .stepper-container {
+            display: flex; align-items: center; justify-content: space-between;
+            border: 1px solid #ddd; border-radius: 10px; padding: 5px 15px;
+            background: #fff; width: 100%; box-sizing: border-box; height: 52px;
+        }
+        .stepper-label { color: #757575; font-size: 14px; text-align: left; }
+        .stepper-controls { display: flex; align-items: center; gap: 15px; }
+        .btn-step {
+            width: 32px; height: 32px; background: #3498db; color: white; border: none;
+            border-radius: 50%; font-size: 20px; font-weight: bold; line-height: 1;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-step:active { transform: scale(0.9); }
+        .btn-step.hidden { display: none; }
+        #v_people {
+            width: 40px; text-align: center; border: none; font-size: 18px; font-weight: bold;
+            background: transparent; color: #444; padding: 0; pointer-events: none;
         }
         
         .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
-        button { flex: 1; padding: 15px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; border-radius: 10px; transition: 0.2s; }
+        button.action-btn { flex: 1; padding: 15px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; border-radius: 10px; transition: 0.2s; }
         .btn-next { background: #3498db; color: white; }
         .btn-back { background: #95a5a6; color: white; }
-        button:active { transform: scale(0.98); }
+        button.action-btn:active { transform: scale(0.98); }
+        
         .loading { display: none; color: #e67e22; font-weight: bold; margin-top: 15px; }
         
         .admin-trigger { 
@@ -107,36 +118,44 @@
 
 <div class="container">
     <div id="step1" class="step active">
-        <h2>來訪名稱 / Purpose</h2>
+        <h2>來訪目的 / Purpose / 訪問目的</h2>
         <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="purpose" value="拜訪 / Visit" checked> 拜訪 / Visit</label>
-            <label class="radio-item"><input type="radio" name="purpose" value="面試 / Interview"> 面試 / Interview</label>
-            <label class="radio-item"><input type="radio" name="purpose" value="報到 / Onboarding"> 報到 / Onboarding</label>
-            <label class="radio-item"><input type="radio" name="purpose" value="施工 / Construction"> 施工 / Construction</label>
-            <label class="radio-item"><input type="radio" name="purpose" value="其他 / Other"> 其他 / Other</label>
+            <label class="radio-item"><input type="radio" name="purpose" value="拜訪 / Visit" checked> 拜訪 / Visit / 訪問</label>
+            <label class="radio-item"><input type="radio" name="purpose" value="面試 / Interview"> 面試 / Interview / 面接</label>
+            <label class="radio-item"><input type="radio" name="purpose" value="報到 / Onboarding"> 報到 / Onboarding / 入社</label>
+            <label class="radio-item"><input type="radio" name="purpose" value="施工 / Construction"> 施工 / Construction / 工事</label>
+            <label class="radio-item"><input type="radio" name="purpose" value="其他 / Other"> 其他 / Other / その他</label>
         </div>
         <div class="btn-group">
-            <button class="btn-next" onclick="nextStep(2)">下一步 / Next</button>
+            <button class="action-btn btn-next" onclick="goToStep2()">下一步 / Next / 次へ</button>
         </div>
     </div>
 
     <div id="step2" class="step">
-        <h2>登記詳細資訊 / Details</h2>
+        <h2>詳細資訊 / Details / 詳細情報</h2>
         
         <div class="form-grid">
-            <input type="text" id="v_name" placeholder="代表姓名 (必填) / Name">
-            <input type="text" id="v_host" placeholder="受訪人姓名 (必填) / Host">
+            <input type="text" id="v_name" placeholder="代表姓名 / Name / 名前 (必填)">
+            <input type="text" id="v_host" placeholder="受訪人姓名 / Host / 訪問先名 (必填)">
             
-            <input type="text" id="v_company" placeholder="公司名稱 / Company">
-            <input type="text" id="v_dept" placeholder="受訪部門 / Dept">
+            <input type="text" id="v_company" placeholder="公司名稱 / Company / 会社名">
+            <input type="text" id="v_dept" placeholder="受訪部門 / Dept. / 部署">
             
-            <input type="text" id="v_phone" placeholder="連絡電話 / Phone">
-            <input type="number" id="v_people" value="1" min="1" placeholder="來訪總人數">
+            <input type="text" id="v_phone" placeholder="連絡電話 / Phone / 電話番号">
+            
+            <div class="stepper-container" id="people_wrapper">
+                <div class="stepper-label">總人數 / People / 人数</div>
+                <div class="stepper-controls">
+                    <button type="button" class="btn-step btn-minus" onclick="changePeople(-1)">-</button>
+                    <input type="number" id="v_people" value="1" min="1" readonly>
+                    <button type="button" class="btn-step btn-plus" onclick="changePeople(1)">+</button>
+                </div>
+            </div>
         </div>
 
         <div class="btn-group">
-            <button class="btn-back" onclick="nextStep(1)">回上一步 / Back</button>
-            <button class="btn-next" onclick="submitData()">確認送出 / Finish</button>
+            <button class="action-btn btn-back" onclick="goToStep(1)">回上一步 / Back / 戻る</button>
+            <button class="action-btn btn-next" onclick="submitData()">確認送出 / Submit / 送信</button>
         </div>
         <div id="loadingMsg" class="loading">正在儲存至系統中...</div>
     </div>
@@ -159,16 +178,69 @@
         const baseUrl = window.location.origin + window.location.pathname;
         const qrUrl = baseUrl + "?loc=" + encodeURIComponent(currentLoc);
         
-        new QRCode(document.getElementById("qrcode"), {
-            text: qrUrl,
-            width: 100,
-            height: 100
-        });
+        new QRCode(document.getElementById("qrcode"), { text: qrUrl, width: 100, height: 100 });
     };
 
-    function nextStep(s) {
+    function goToStep(s) {
         document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
         document.getElementById('step' + s).classList.add('active');
+    }
+
+    // 核心動態邏輯：根據選擇的目的，變更介面與提示詞
+    function goToStep2() {
+        const purpose = document.querySelector('input[name="purpose"]:checked').value;
+        
+        const fName = document.getElementById('v_name');
+        const fComp = document.getElementById('v_company');
+        const fDept = document.getElementById('v_dept');
+        const iPeople = document.getElementById('v_people');
+        const btnSteps = document.querySelectorAll('.btn-step');
+
+        // 先全部重置為預設狀態 (顯示)
+        fComp.style.display = 'block';
+        fDept.style.display = 'block';
+        btnSteps.forEach(btn => btn.style.display = 'flex');
+        iPeople.value = 1;
+
+        // 依據條件進行動態修改
+        if (purpose.includes("拜訪")) {
+            fName.placeholder = "代表姓名 / Name / 名前 (必填)";
+            fComp.placeholder = "公司名稱 / Company / 会社名 (非必填)";
+            fDept.placeholder = "受訪部門 / Dept. / 部署 (非必填)";
+        } 
+        else if (purpose.includes("面試")) {
+            fName.placeholder = "面試者姓名 / Candidate / 面接者名 (必填)";
+            fComp.style.display = 'none'; fComp.value = '';
+            fDept.style.display = 'none'; fDept.value = '';
+            btnSteps.forEach(btn => btn.style.display = 'none');
+        } 
+        else if (purpose.includes("報到")) {
+            fName.placeholder = "報到者姓名 / New Hire / 入社者名 (必填)";
+            fComp.style.display = 'none'; fComp.value = '';
+            fDept.style.display = 'none'; fDept.value = '';
+            btnSteps.forEach(btn => btn.style.display = 'none');
+        } 
+        else if (purpose.includes("施工")) {
+            fName.placeholder = "代表姓名 / Name / 名前 (必填)";
+            fComp.placeholder = "公司名稱 / Company / 会社名";
+            fDept.style.display = 'none'; fDept.value = '';
+        } 
+        else {
+            // 其他
+            fName.placeholder = "代表姓名 / Name / 名前 (必填)";
+            fComp.placeholder = "公司名稱 / Company / 会社名";
+            fDept.placeholder = "受訪部門 / Dept. / 部署";
+        }
+
+        goToStep(2);
+    }
+
+    // 控制人數增減
+    function changePeople(delta) {
+        const input = document.getElementById('v_people');
+        let val = parseInt(input.value) + delta;
+        if(val < 1) val = 1; // 最小人數為 1
+        input.value = val;
     }
 
     function submitData() {
@@ -176,7 +248,7 @@
         const host = document.getElementById('v_host').value.trim();
         
         if(!name || !host) { 
-            alert("請填寫代表姓名與受訪人姓名！"); 
+            alert("請填寫姓名與受訪人！ / Please fill in required fields."); 
             return; 
         }
 
@@ -203,11 +275,11 @@
             body: JSON.stringify(record)
         }).then(res => res.json()).then(data => {
             if(data.success) {
-                alert("✅ 登記完成，謝謝！");
+                alert("✅ 登記完成，謝謝！ / Submitted successfully!");
                 location.reload();
             }
         }).catch(err => {
-            alert("⚠️ 傳送失敗，請重試。");
+            alert("⚠️ 傳送失敗，請重試。 / Submission failed, please try again.");
             document.getElementById('loadingMsg').style.display = 'none';
         });
     }
