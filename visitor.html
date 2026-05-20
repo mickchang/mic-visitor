@@ -41,7 +41,7 @@
             .header-area { flex-direction: column; align-items: center; text-align: center; padding-bottom: 0; }
             .header-title { margin-right: 0; text-align: center; }
             #qrcode-container { display: none !important; }
-            .form-grid { grid-template-columns: 1fr; gap: 15px; } /* 手機單排 */
+            .form-grid { grid-template-columns: 1fr; gap: 15px; }
         }
 
         .container { 
@@ -67,7 +67,7 @@
         }
         input[type="text"]:focus { border-color: #3498db; }
 
-        /* 人數增減按鈕專用樣式 */
+        /* 人數增減按鈕樣式 */
         .stepper-container {
             display: flex; align-items: center; justify-content: space-between;
             border: 1px solid #ddd; border-radius: 10px; padding: 5px 15px;
@@ -81,7 +81,6 @@
             cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
         .btn-step:active { transform: scale(0.9); }
-        .btn-step.hidden { display: none; }
         #v_people {
             width: 40px; text-align: center; border: none; font-size: 18px; font-weight: bold;
             background: transparent; color: #444; padding: 0; pointer-events: none;
@@ -186,48 +185,54 @@
         document.getElementById('step' + s).classList.add('active');
     }
 
-    // 核心動態邏輯：根據選擇的目的，變更介面與提示詞
+    // 核心動態邏輯
     function goToStep2() {
         const purpose = document.querySelector('input[name="purpose"]:checked').value;
         
         const fName = document.getElementById('v_name');
+        const fHost = document.getElementById('v_host');
         const fComp = document.getElementById('v_company');
         const fDept = document.getElementById('v_dept');
         const iPeople = document.getElementById('v_people');
         const btnSteps = document.querySelectorAll('.btn-step');
 
-        // 先全部重置為預設狀態 (顯示)
-        fComp.style.display = 'block';
-        fDept.style.display = 'block';
+        // 全部重置為顯示狀態
+        fHost.style.display = 'block'; fHost.value = '';
+        fComp.style.display = 'block'; fComp.value = '';
+        fDept.style.display = 'block'; fDept.value = '';
         btnSteps.forEach(btn => btn.style.display = 'flex');
         iPeople.value = 1;
 
-        // 依據條件進行動態修改
         if (purpose.includes("拜訪")) {
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
+            fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
             fComp.placeholder = "公司名稱 / Company / 会社名 (非必填)";
             fDept.placeholder = "受訪部門 / Dept. / 部署 (非必填)";
         } 
         else if (purpose.includes("面試")) {
             fName.placeholder = "面試者姓名 / Candidate / 面接者名 (必填)";
-            fComp.style.display = 'none'; fComp.value = '';
-            fDept.style.display = 'none'; fDept.value = '';
+            fComp.style.display = 'none';
+            fDept.style.display = 'none';
+            fHost.style.display = 'none'; fHost.value = '-'; // 隱藏受訪人，預設帶入 "-"
             btnSteps.forEach(btn => btn.style.display = 'none');
         } 
         else if (purpose.includes("報到")) {
             fName.placeholder = "報到者姓名 / New Hire / 入社者名 (必填)";
-            fComp.style.display = 'none'; fComp.value = '';
-            fDept.style.display = 'none'; fDept.value = '';
+            fComp.style.display = 'none';
+            fDept.style.display = 'none';
+            fHost.style.display = 'none'; fHost.value = '-'; // 隱藏受訪人，預設帶入 "-"
             btnSteps.forEach(btn => btn.style.display = 'none');
         } 
         else if (purpose.includes("施工")) {
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
+            fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
             fComp.placeholder = "公司名稱 / Company / 会社名";
-            fDept.style.display = 'none'; fDept.value = '';
+            fDept.style.display = 'none';
         } 
         else {
             // 其他
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
+            fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
             fComp.placeholder = "公司名稱 / Company / 会社名";
             fDept.placeholder = "受訪部門 / Dept. / 部署";
         }
@@ -235,20 +240,21 @@
         goToStep(2);
     }
 
-    // 控制人數增減
     function changePeople(delta) {
         const input = document.getElementById('v_people');
         let val = parseInt(input.value) + delta;
-        if(val < 1) val = 1; // 最小人數為 1
+        if(val < 1) val = 1;
         input.value = val;
     }
 
     function submitData() {
         const name = document.getElementById('v_name').value.trim();
         const host = document.getElementById('v_host').value.trim();
+        const isHostVisible = document.getElementById('v_host').style.display !== 'none';
         
-        if(!name || !host) { 
-            alert("請填寫姓名與受訪人！ / Please fill in required fields."); 
+        // 只有在受訪人欄位有顯示時，才檢查是否必填
+        if(!name || (isHostVisible && !host)) { 
+            alert("請填寫必填欄位！ / Please fill in required fields."); 
             return; 
         }
 
@@ -267,7 +273,7 @@
             people: document.getElementById('v_people').value || "1",
             phone: document.getElementById('v_phone').value || "-",
             dept: document.getElementById('v_dept').value || "-",
-            host: host
+            host: host || "-"
         };
 
         fetch(GAS_URL, {
