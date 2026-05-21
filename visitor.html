@@ -137,13 +137,9 @@
         
         <div class="form-grid">
             <input type="text" id="v_name" placeholder="代表姓名 / Name / 名前 (必填)">
-            
             <input type="text" id="v_phone" placeholder="連絡電話 / Phone / 電話番号">
-            
             <input type="text" id="v_company" placeholder="公司名稱 / Company / 会社名">
-            
             <input type="text" id="v_dept" placeholder="受訪部門 / Dept. / 部署">
-            
             <input type="text" id="v_host" placeholder="受訪人姓名 / Host / 訪問先名 (必填)">
             
             <div class="stepper-container" id="people_wrapper">
@@ -169,7 +165,11 @@
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycby6UO89plqJzmURWl26XCqoc4p9q1jRUp7TWKu1RM34WDluu2oxMdEffvXSAUHOFTmF/exec";
+    // ==============================================================================
+    // 已經為您換上最新的 Google Apps Script 網址！
+    // ==============================================================================
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbye6rNAkGrwBaKqTp8KebxyeQHeuWIIkRUG-__3QlpkVj0plgPvPSpmYx20Rxbguwun/exec";
+    // ==============================================================================
 
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -211,7 +211,7 @@
         fHost.style.display = 'block'; fHost.value = '';
         fComp.style.display = 'block'; fComp.value = '';
         fDept.style.display = 'block'; fDept.value = '';
-        fPhone.style.display = 'block'; fPhone.value = ''; // 確保電話恢復顯示
+        fPhone.style.display = 'block'; fPhone.value = ''; 
         btnSteps.forEach(btn => btn.style.display = 'flex');
         iPeople.value = 1;
 
