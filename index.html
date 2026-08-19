@@ -173,7 +173,7 @@
     </div>
     <!-- ========================================================================= -->
 
-    <!-- ================= 原本的 Step 1：來訪目的 (移除 active) ================= -->
+    <!-- ================= 原本的 Step 1：來訪目的 ================= -->
     <div id="step1" class="step">
         <h2>來訪目的 / Purpose / 訪問目的</h2>
         <div class="radio-group">
@@ -194,7 +194,8 @@
         
         <div class="form-grid">
             <input type="text" id="v_name" placeholder="代表姓名 / Name / 名前 (必填)">
-            <input type="text" id="v_phone" placeholder="連絡電話 / Phone / 電話番号">
+            <!-- 【修改點1】電話加上必填提示 -->
+            <input type="text" id="v_phone" placeholder="連絡電話 / Phone / 電話番号 (必填)">
             <input type="text" id="v_company" placeholder="公司名稱 / Company / 会社名">
             <input type="text" id="v_dept" placeholder="受訪部門 / Dept. / 部署">
             <input type="text" id="v_host" placeholder="受訪人姓名 / Host / 訪問先名 (必填)">
@@ -317,10 +318,12 @@
 
     function submitData() {
         const name = document.getElementById('v_name').value.trim();
+        const phone = document.getElementById('v_phone').value.trim(); // 取得電話欄位值
         const host = document.getElementById('v_host').value.trim();
         const isHostVisible = document.getElementById('v_host').style.display !== 'none';
         
-        if(!name || (isHostVisible && !host)) { 
+        // 【修改點2】加入電話防呆：若姓名、電話為空，或受訪人可見但未填，則阻擋
+        if(!name || !phone || (isHostVisible && !host)) { 
             alert("請填寫必填欄位！ / Please fill in required fields."); 
             return; 
         }
@@ -338,7 +341,7 @@
             name: name,
             company: document.getElementById('v_company').value || "-",
             people: document.getElementById('v_people').value || "1",
-            phone: document.getElementById('v_phone').value || "-",
+            phone: phone, // 直接寫入強制的電話值
             dept: document.getElementById('v_dept').value || "-",
             host: host || "-"
         };
