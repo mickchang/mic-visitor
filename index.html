@@ -180,7 +180,7 @@
             <label class="radio-item"><input type="radio" name="purpose" value="拜訪 / Visit" checked> 拜訪 / Visit / 訪問</label>
             <label class="radio-item"><input type="radio" name="purpose" value="面試 / Interview"> 面試 / Interview / 面接</label>
             <label class="radio-item"><input type="radio" name="purpose" value="報到 / Onboarding"> 報到 / Onboarding / 入社</label>
-            <label class="radio-item"><input type="radio" name="purpose" value="施工 / Construction"> 施工 / Construction / 工事</label>
+            <!-- 已刪除施工選項 -->
             <label class="radio-item"><input type="radio" name="purpose" value="其他 / Other"> 其他 / Other / その他</label>
         </div>
         <div class="btn-group">
@@ -277,7 +277,7 @@
         btnSteps.forEach(btn => btn.style.display = 'flex');
         iPeople.value = 1;
 
-        // 依據條件進行動態修改 
+        // 依據條件進行動態修改 (已移除施工判斷)
         if (purpose.includes("拜訪")) {
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
             fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
@@ -297,12 +297,6 @@
             fDept.style.display = 'none';
             fHost.style.display = 'none'; fHost.value = '-'; 
             btnSteps.forEach(btn => btn.style.display = 'none'); 
-        } 
-        else if (purpose.includes("施工")) {
-            fName.placeholder = "代表姓名 / Name / 名前 (必填)";
-            fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
-            fComp.placeholder = "公司名稱 / Company / 会社名";
-            fDept.style.display = 'none'; 
         } 
         else {
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
