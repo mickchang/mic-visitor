@@ -100,6 +100,17 @@
             margin: 20px 0 40px 0; cursor: pointer; color: #999; font-size: 14px; 
             font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 100;
         }
+
+        /* 警語區塊的特定樣式 */
+        .notice-box {
+            text-align: left; background: #fdfbfb; padding: 20px; border-radius: 12px;
+            margin-bottom: 25px; font-size: 13px; color: #444; line-height: 1.6;
+            border: 1px solid #e0e0e0; max-height: 350px; overflow-y: auto;
+        }
+        .notice-lang-title { font-weight: bold; color: #c0392b; margin-top: 15px; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px;}
+        .notice-lang-title:first-child { margin-top: 0; }
+        .notice-list { margin: 5px 0 0 15px; padding: 0; }
+        .notice-list li { margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -118,7 +129,52 @@
 </div>
 
 <div class="container">
-    <div id="step1" class="step active">
+    <!-- ================= 新增：Step 0 (警語與同意，預設顯示) ================= -->
+    <div id="step0" class="step active">
+        <h2 style="font-size: 22px; color: #c0392b; margin-bottom: 15px;">安全規範與同意聲明<br><span style="font-size:16px; color:#555;">Safety Notice / 安全規則と同意書</span></h2>
+        
+        <div class="notice-box">
+            <!-- 中文 -->
+            <div class="notice-lang-title">【中文】</div>
+            本人已詳細閱讀並承諾在辦公室活動期間，完全遵守以下安全規範：<br>
+            本表單送出即代表電子簽署，確認已知悉辦公室環境之潛在危害（例如非緊急狀態下不可在辦公室奔跑、行走時請勿瀏覽手機，上下樓梯請握扶手）。
+            <ol class="notice-list">
+                <li><strong>緊急應變：</strong>本大樓若發生（如地震、火災）時，保持冷靜並立即停止一切作業，依大樓廣播進行疏散，並聽從安全引導人員指揮，前往最近的緊急避難集合點。</li>
+                <li><strong>個人資料保護同意：</strong>本表單所收集之個人資料僅供入廠安全管理與法規留存使用，本公司將依個資法嚴格保密，不挪作他用。</li>
+            </ol>
+
+            <!-- 英文 -->
+            <div class="notice-lang-title">【English】</div>
+            I have carefully read and promise to fully comply with the following safety regulations during my visit: <br>
+            Submitting this form constitutes an electronic signature, confirming awareness of potential hazards in the office environment (e.g., no running unless in an emergency, no using mobile phones while walking, please use handrails on stairs).
+            <ol class="notice-list">
+                <li><strong>Emergency Response:</strong> In the event of an emergency (e.g., earthquake, fire), remain calm, cease all operations immediately, follow building broadcast instructions for evacuation, and obey safety personnel to proceed to the nearest assembly point.</li>
+                <li><strong>Personal Data Consent:</strong> Data collected is solely for facility security management and legal retention. The company will maintain strict confidentiality in accordance with privacy laws and will not use it for other purposes.</li>
+            </ol>
+
+            <!-- 日文 -->
+            <div class="notice-lang-title">【日本語】</div>
+            オフィス滞在中は以下の安全規則を遵守することを約束します。<br>
+            本フォームの送信は電子署名とみなされ、オフィス環境における潜在的な危険（例：緊急時以外の走行禁止、歩行中のスマホ操作禁止、階段での手すり使用など）を認知したことを確認します。
+            <ol class="notice-list">
+                <li><strong>緊急時の対応：</strong>地震や火災などの緊急事態が発生した場合は、落ち着いて直ちにすべての作業を中止し、館内放送に従って避難してください。また、安全誘導員の指示に従い、最寄りの緊急避難場所へ向かってください。</li>
+                <li><strong>個人情報保護の同意：</strong>本フォームで収集した個人情報は、入退館の安全管理および法令順守の目的にのみ使用されます。当社は個人情報保護法に基づき厳重に管理し、他の目的には使用しません。</li>
+            </ol>
+        </div>
+
+        <label style="display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; margin-bottom: 25px; cursor: pointer; color: #333;">
+            <input type="checkbox" id="agreeCheckbox" style="transform: scale(1.5); margin-right: 12px; cursor: pointer;">
+            我已閱讀並同意 / I agree / 同意する
+        </label>
+
+        <div class="btn-group">
+            <button class="action-btn btn-next" onclick="checkAgreement()">確認同意 / Confirm / 確認</button>
+        </div>
+    </div>
+    <!-- ========================================================================= -->
+
+    <!-- ================= 原本的 Step 1：來訪目的 (移除 active) ================= -->
+    <div id="step1" class="step">
         <h2>來訪目的 / Purpose / 訪問目的</h2>
         <div class="radio-group">
             <label class="radio-item"><input type="radio" name="purpose" value="拜訪 / Visit" checked> 拜訪 / Visit / 訪問</label>
@@ -132,6 +188,7 @@
         </div>
     </div>
 
+    <!-- ================= 原本的 Step 2：詳細資訊 ================= -->
     <div id="step2" class="step">
         <h2>詳細資訊 / Details / 詳細情報</h2>
         
@@ -165,11 +222,7 @@
 </div>
 
 <script>
-    // ==============================================================================
-    // 已經為您換上最新的 Google Apps Script 網址！
-    // ==============================================================================
     const GAS_URL = "https://script.google.com/macros/s/AKfycbye6rNAkGrwBaKqTp8KebxyeQHeuWIIkRUG-__3QlpkVj0plgPvPSpmYx20Rxbguwun/exec";
-    // ==============================================================================
 
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -195,7 +248,16 @@
         document.getElementById('step' + s).classList.add('active');
     }
 
-    // 核心動態邏輯：根據選擇的目的，變更介面與提示詞，並重新重置欄位顯示
+    // 檢查是否勾選同意警語
+    function checkAgreement() {
+        const checkbox = document.getElementById('agreeCheckbox');
+        if (checkbox.checked) {
+            goToStep(1); // 進入正式登記的第一步 (來訪目的)
+        } else {
+            alert("請先勾選同意條款！\nPlease check the agreement box.\n同意チェックボックスにチェックを入れてください。");
+        }
+    }
+
     function goToStep2() {
         const purpose = document.querySelector('input[name="purpose"]:checked').value;
         
@@ -215,7 +277,7 @@
         btnSteps.forEach(btn => btn.style.display = 'flex');
         iPeople.value = 1;
 
-        // 依據條件進行動態修改 (欄位順序已由 HTML 完成調整)
+        // 依據條件進行動態修改 
         if (purpose.includes("拜訪")) {
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
             fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
@@ -224,26 +286,25 @@
         } 
         else if (purpose.includes("面試")) {
             fName.placeholder = "面試者姓名 / Candidate / 面接者名 (必填)";
-            fComp.style.display = 'none'; // 隱藏公司
-            fDept.style.display = 'none'; // 隱藏部門
-            fHost.style.display = 'none'; fHost.value = '-'; // 隱藏受訪人，預設帶入 "-"
-            btnSteps.forEach(btn => btn.style.display = 'none'); // 固定人數
+            fComp.style.display = 'none'; 
+            fDept.style.display = 'none'; 
+            fHost.style.display = 'none'; fHost.value = '-'; 
+            btnSteps.forEach(btn => btn.style.display = 'none'); 
         } 
         else if (purpose.includes("報到")) {
             fName.placeholder = "報到者姓名 / New Hire / 入社者名 (必填)";
             fComp.style.display = 'none';
             fDept.style.display = 'none';
-            fHost.style.display = 'none'; fHost.value = '-'; // 隱藏受訪人，預設帶入 "-"
-            btnSteps.forEach(btn => btn.style.display = 'none'); // 固定人數
+            fHost.style.display = 'none'; fHost.value = '-'; 
+            btnSteps.forEach(btn => btn.style.display = 'none'); 
         } 
         else if (purpose.includes("施工")) {
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
             fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
             fComp.placeholder = "公司名稱 / Company / 会社名";
-            fDept.style.display = 'none'; // 隱藏部門
+            fDept.style.display = 'none'; 
         } 
         else {
-            // 其他
             fName.placeholder = "代表姓名 / Name / 名前 (必填)";
             fHost.placeholder = "受訪人姓名 / Host / 訪問先名 (必填)";
             fComp.placeholder = "公司名稱 / Company / 会社名";
@@ -253,11 +314,10 @@
         goToStep(2);
     }
 
-    // 控制人數增減
     function changePeople(delta) {
         const input = document.getElementById('v_people');
         let val = parseInt(input.value) + delta;
-        if(val < 1) val = 1; // 最小人數為 1
+        if(val < 1) val = 1; 
         input.value = val;
     }
 
@@ -266,7 +326,6 @@
         const host = document.getElementById('v_host').value.trim();
         const isHostVisible = document.getElementById('v_host').style.display !== 'none';
         
-        // 驗證必填欄位
         if(!name || (isHostVisible && !host)) { 
             alert("請填寫必填欄位！ / Please fill in required fields."); 
             return; 
